@@ -5,36 +5,39 @@ const openai = new OpenAI({
 });
 
 export async function generatePinterestCaption(topic) {
-  console.log(`Generating Pinterest caption for topic: "${topic}"`);
+  console.log(`Generating Pinterest Title & Caption for topic: "${topic}"`);
 
   const systemPrompt = `
-You are a trauma-informed psychologist and viral Pinterest content strategist. 
-Every Post must be **450 characters or less**. This is a hard limit.
-You generate publish-ready descriptions without preamble.
+You are a trauma-informed psychologist and viral Pinterest content strategist.
+You output JSON only.
+Your goal is to create two distinct assets:
+1. A **Pinterest Title**: High click-through rate, SEO-friendly, short (under 100 chars).
+2. A **Pinterest Caption**: Emotional, reflective, under 450 characters.
 `;
 
   const userPrompt = `
-You understand how Pinterest users consume content: visually, emotionally, and in short, powerful statements.
-
 TOPIC: ${topic}
 
-Pinterest formatting + performance requirements:
-- Start with a powerful 1–2 sentence hook.
-- Use whitespace for pacing.
-- Use emojis strategically (not excessive).
-- Build from relatable everyday moments → internal emotional effects → subtle recognition.
-- Assume the reader does NOT realize something is wrong.
-- Do not use clinical labels.
-- Do not name "abuse" until the final line, and only gently.
-- No step lists or instructions.
+REQUIREMENTS:
 
-Output structure:
-1) Hook (1–2 sentences) — emotion-driven, curiosity trigger
-2) Short reflection section describing small subtle moments + internal emotional shifts
-3) Gentle realization that this could be more than normal conflict
-4) Close with 1 reflective question for comments and saves
+1. **TITLE**: 
+- Must be "Pinterest Friendly" (e.g., "5 Signs You...", "Why You Feel...", "The Hidden Pattern of...").
+- Short, punchy, clear text overlay style.
 
-STRICT CONSTRAINT: Total output must be under 450 characters.
+2. **CAPTION**:
+- **Strict Limit:** Under 450 characters total.
+- **Structure:** - Hook (1-2 sentences).
+  - Short reflection on internal shifts.
+  - Gentle realization (don't name "abuse" until the end).
+  - 1 Reflective Question.
+- No "Title:" or labels inside the caption text.
+- No step lists.
+
+OUTPUT FORMAT (JSON):
+{
+  "title": "The generated title here",
+  "caption": "The generated caption text here"
+}
 `;
 
   try {
@@ -44,21 +47,24 @@ STRICT CONSTRAINT: Total output must be under 450 characters.
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
+      response_format: { type: "json_object" }, // Forces structured output
       temperature: 0.7, 
     });
 
-    const caption = completion.choices[0].message.content;
+    // Parse the JSON string back into a JavaScript Object
+    const responseData = JSON.parse(completion.choices[0].message.content);
 
-    // --- LOGGING THE RESPONSE ---
+    // --- LOGGING ---
     console.log("\n=== PINTEREST RESPONSE START ===");
-    console.log(caption);
+    console.log("TITLE: " + responseData.title);
+    console.log("CAPTION: " + responseData.caption);
     console.log("=== PINTEREST RESPONSE END ===\n");
-    // ----------------------------
+    // --------------
     
-    return caption;
+    return responseData; // Returns { title, caption }
 
   } catch (error) {
-    console.error("Error generating Pinterest caption:", error);
-    throw new Error("Failed to generate Pinterest caption.");
+    console.error("Error generating Pinterest content:", error);
+    throw new Error("Failed to generate Pinterest content.");
   }
 }
