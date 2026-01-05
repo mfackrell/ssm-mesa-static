@@ -1,5 +1,6 @@
 import { selectTopic } from "./steps/selectTopic.js";
 import { generateInstagramCaption } from "./steps/generateInstagramCaption.js"; // <--- Specific Import
+const { generateFacebookCaption } = require('./steps/generateFacebookCaption'); // path to file above
 
 export async function runOrchestrator(payload = {}) {
   console.log("SSM Orchestrator started", { timestamp: new Date().toISOString() });
@@ -8,10 +9,12 @@ export async function runOrchestrator(payload = {}) {
   const topic = await selectTopic();
   console.log(`Topic Selected: "${topic}"`);
 
-  // --- STEP 2: Instagram Caption Generation ---
-  // We explicitly call the Instagram generator here. 
-  // Later we can add generateLinkedInPost(topic) in parallel if needed.
-  const instagramCaption = await generateInstagramCaption(topic);
+async function ssmOrchestrator() {
+  // Concurrent execution
+  const [facebookContent, instagramContent] = await Promise.all([
+    generateFacebookCaption(openai),
+    generateInstagramCaption(openai)
+  ]);
   console.log("Instagram caption generated successfully.");
 
   console.log("Orchestrator finished successfully.");
@@ -19,6 +22,6 @@ export async function runOrchestrator(payload = {}) {
   return {
     status: "completed",
     topic: topic,
-    instagramCaption: instagramCaption 
-  };
+    facebookContent, 
+    instagramContent  };
 }
