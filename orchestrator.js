@@ -1,6 +1,7 @@
 import { selectTopic } from "./steps/selectTopic.js";
 import { generateInstagramCaption } from "./steps/generateInstagramCaption.js";
 import { generateFacebookCaption } from "./steps/generateFacebookCaption.js"; // Fixed import style
+import { generatePinterestCaption } from "./steps/generatePinterestCaption.js"; // <--- New Import
 
 export async function runOrchestrator(payload = {}) {
   console.log("SSM Orchestrator started", { timestamp: new Date().toISOString() });
@@ -14,7 +15,8 @@ export async function runOrchestrator(payload = {}) {
     // Note: We pass 'topic' only. The functions handle their own OpenAI instances.
     const [facebookContent, instagramContent] = await Promise.all([
       generateFacebookCaption(topic),
-      generateInstagramCaption(topic)
+      generateInstagramCaption(topic),
+      generatePinterestCaption(topic)
     ]);
 
     console.log("Content generated successfully.");
@@ -23,7 +25,8 @@ export async function runOrchestrator(payload = {}) {
       status: "completed",
       topic: topic,
       facebookContent, 
-      instagramContent 
+      instagramContent,
+      pinterestContent
     };
 
   } catch (error) {
