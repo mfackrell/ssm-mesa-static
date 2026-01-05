@@ -44,6 +44,9 @@ GENERATE NOW.
     });
 
     const caption = completion.choices[0].message.content;
+
+    console.log("OPENAI RESPONSE START \n" + caption + "\n OPENAI RESPONSE END");
+    
     return caption;
 
   } catch (error) {
