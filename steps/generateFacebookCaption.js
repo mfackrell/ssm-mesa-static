@@ -40,8 +40,12 @@ Output only the post.
     });
 
     const caption = completion.choices[0].message.content;
-    console.log("FB CAPTION GENERATED");
     
+    // --- LOGGING THE RESPONSE ---
+    console.log("\n=== FACEBOOK RESPONSE START ===");
+    console.log(caption);
+    console.log("=== FACEBOOK RESPONSE END ===\n");
+    // ----------------------------    
     return caption;
 
   } catch (error) {
