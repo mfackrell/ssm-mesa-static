@@ -1,27 +1,33 @@
 import { selectTopic } from "./steps/selectTopic.js";
-import { generateInstagramCaption } from "./steps/generateInstagramCaption.js"; // <--- Specific Import
-const { generateFacebookCaption } = require('./steps/generateFacebookCaption'); // path to file above
+import { generateInstagramCaption } from "./steps/generateInstagramCaption.js";
+import { generateFacebookCaption } from "./steps/generateFacebookCaption.js"; // Fixed import style
 
 export async function runOrchestrator(payload = {}) {
   console.log("SSM Orchestrator started", { timestamp: new Date().toISOString() });
 
-  // --- STEP 1: Topic Selection ---
-  const topic = await selectTopic();
-  console.log(`Topic Selected: "${topic}"`);
+  try {
+    // --- STEP 1: Topic Selection ---
+    const topic = await selectTopic();
+    console.log(`Topic Selected: "${topic}"`);
 
-async function ssmOrchestrator() {
-  // Concurrent execution
-  const [facebookContent, instagramContent] = await Promise.all([
-    generateFacebookCaption(openai),
-    generateInstagramCaption(openai)
-  ]);
-  console.log("Instagram caption generated successfully.");
+    // --- STEP 2: Content Generation (Concurrent) ---
+    // Note: We pass 'topic' only. The functions handle their own OpenAI instances.
+    const [facebookContent, instagramContent] = await Promise.all([
+      generateFacebookCaption(topic),
+      generateInstagramCaption(topic)
+    ]);
 
-  console.log("Orchestrator finished successfully.");
+    console.log("Content generated successfully.");
 
-  return {
-    status: "completed",
-    topic: topic,
-    facebookContent, 
-    instagramContent  };
+    return {
+      status: "completed",
+      topic: topic,
+      facebookContent, 
+      instagramContent 
+    };
+
+  } catch (error) {
+    console.error("Orchestrator failed:", error);
+    throw error;
+  }
 }
