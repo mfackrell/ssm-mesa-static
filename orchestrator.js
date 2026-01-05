@@ -1,38 +1,24 @@
-// steps imports
 import { selectTopic } from "./steps/selectTopic.js";
-
-// Future imports (commented out for now)
-// import { generateScript } from "./steps/generateScript.js";
-// import { generateAudio } from "./steps/generateAudio.js";
-// import { generateImages } from "./steps/generateImages.js";
-// import { triggerZapier } from "./steps/triggerZapier.js";
+import { generateInstagramCaption } from "./steps/generateInstagramCaption.js"; // <--- Specific Import
 
 export async function runOrchestrator(payload = {}) {
   console.log("SSM Orchestrator started", { timestamp: new Date().toISOString() });
 
   // --- STEP 1: Topic Selection ---
-  // Replaces "retrieveTitle"
   const topic = await selectTopic();
   console.log(`Topic Selected: "${topic}"`);
 
-  // --- STEP 2: Content Generation (Placeholder) ---
-  // console.log("Starting parallel generation...");
-  
-  // const [script, tone] = await Promise.all([
-  //   generateScript(topic),
-  //   // getTone(topic)
-  // ]);
-
-  // --- STEP 3: Asset Generation (Placeholder) ---
-  
-  // --- STEP 4: Render & Delivery (Placeholder) ---
+  // --- STEP 2: Instagram Caption Generation ---
+  // We explicitly call the Instagram generator here. 
+  // Later we can add generateLinkedInPost(topic) in parallel if needed.
+  const instagramCaption = await generateInstagramCaption(topic);
+  console.log("Instagram caption generated successfully.");
 
   console.log("Orchestrator finished successfully.");
 
   return {
     status: "completed",
     topic: topic,
-    // Add future outputs here
-    // script: script
+    instagramCaption: instagramCaption 
   };
 }
