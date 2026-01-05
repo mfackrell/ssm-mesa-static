@@ -45,7 +45,11 @@ GENERATE NOW.
 
     const caption = completion.choices[0].message.content;
 
-    console.log("OPENAI RESPONSE START \n" + caption + "\n OPENAI RESPONSE END");
+    // --- LOGGING THE RESPONSE ---
+    console.log("\n=== INSTAGRAM RESPONSE START ===");
+    console.log(caption);
+    console.log("=== INSTAGRAM RESPONSE END ===\n");
+    // ----------------------------
     
     return caption;
 
