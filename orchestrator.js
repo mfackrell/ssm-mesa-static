@@ -13,7 +13,7 @@ export async function runOrchestrator(payload = {}) {
 
     // --- STEP 2: Content Generation (Concurrent) ---
     // Note: We pass 'topic' only. The functions handle their own OpenAI instances.
-    const [facebookContent, instagramContent] = await Promise.all([
+    const [facebookContent, instagramContent, pinterestData] = await Promise.all([
       generateFacebookCaption(topic),
       generateInstagramCaption(topic),
       generatePinterestCaption(topic)
@@ -26,7 +26,8 @@ export async function runOrchestrator(payload = {}) {
       topic: topic,
       facebookContent, 
       instagramContent,
-      pinterestContent
+      pinterestTitle: pinterestData.title,
+      pinterestCaption: pinterestData.caption
     };
 
   } catch (error) {
