@@ -8,27 +8,40 @@ export async function generateInstagramCaption(topic) {
   console.log(`Generating Instagram caption for topic: "${topic}"`);
 
   const systemPrompt = `
-You are a trauma-informed Christian psychologist and a viral Instagram content strategist. You specialize in "Instagram Therapy" style content—visual, skimmable, and deeply resonant. You fight back against spiritual manipulation using Godly truth, but you do so with a tone that stops the scroll.
-`;
+You are a trauma-informed Christian psychologist and a viral Instagram content strategist. You understand how to craft viral Instagram Posts and format them accordingly. You use images and emoji when necessary to emphasise you points, you grab interest and then educate your audience. Your job is to write highly engaging, emotionally resonant Instagram captions that help people gently recognize subtle patterns of mental, emotional or psychological harm that they may not yet be aware of, resulting from abuse that is primarily mental, spiritual and emotional in nature. You understand how faith can be used to manipulate people and in those instances you fight back the abusers use of scripture with a truly Godly use of scripture. 
+
+The audience is people who may be experiencing something harmful but have not named it yet. They are intelligent, intuitive, and self-aware, but they have been slowly conditioned to doubt themselves. The tone must be compassionate, reflective, and curiosity-driven—not dramatic or accusatory.`;
 
   const userPrompt = `
 The audience is intelligent and intuitive but conditioned to doubt themselves. They are scrolling quickly. You must catch them immediately.
 
 TOPIC: ${topic}
 
-STRICT INSTAGRAM FORMATTING:
-1. **The Hook:** The first line must be short, punchy, and visible *before* the "more" fold. No filler.
-2. **The Body:** Use clean line breaks between every single sentence or short paragraph. Instagram collapses text; whitespace is crucial for readability.
-3. **The Tone:** Compassionate, reflective, "I see you" energy. Not clinical.
-4. **The Arc:** - Start with the feeling (e.g., "You feel crazy when...").
-   - Move to the internal shift (e.g., "So you stop speaking up...").
-   - Gently name the pattern (e.g., "This isn't just sensitivity, it's...").
-5. **The Close:** A specific, open-ended question to drive comments (engagement).
+Formatting + performance requirements:
+- MUST start with a scroll-stopping hook in 1 short line.
+- Use whitespace between lines (1–2 sentences max per paragraph).
+- Use emojis strategically to emphasize emotion or pacing (not excessively).
+- Build slowly from relatable everyday experience → internal emotional shifts → recognition of a pattern.
+- Assume the reader does NOT recognize anything is wrong.
+- Use sensory and emotional cues (e.g., shrinking, hesitation, confusion, walking on eggshells).
+- Do NOT name “abuse” directly until close to the end. Use gentle language like “sometimes this is more than…” or “it can become something harmful.”
+- Avoid clinical jargon.
+- Avoid solutions or steps.
+- End with a single open-ended reflective question that encourages comments.
 
-CONSTRAINTS:
-- Do NOT use "Title:" or "Caption:" labels. Just the text.
-- Do NOT provide advice or 3-step solutions. Just validation.
-- Include 15 relevant hashtags at the very bottom, separated by dots or space.
+
+Structure:
+1) Hook tied to the topic (short, emotional, relatable, curiosity-triggering)
+2) Real-life micro-moments that illustrate the topic
+3) Internal emotional shifts
+4) Slow realization arc
+5) Gentle introduction that this may be harmful
+6) Reflective engagement question
+
+Output:
+A complete Instagram caption (with emojis and spacing) ready to publish. 
+- Generate publish ready contennt without explain of task or description of what was done.
+- Generate 10-15 hashtags and place at the end of the caption.
 
 GENERATE NOW.
 `;
@@ -40,7 +53,7 @@ GENERATE NOW.
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.7, 
+      temperature: 1.0, 
     });
 
     const caption = completion.choices[0].message.content;
