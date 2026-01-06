@@ -1,12 +1,21 @@
+import { GoogleGenAI } from "@google/genai";
 import { uploadToGCS } from "../helpers/uploadToGCS.js";
 import { extractHeadline } from "../helpers/extractHeadline.js";
 
+const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
+
 export async function generateInstagramImage(caption) {
-  console.log("Starting Instagram Image Generation (Model: gemini-3-pro-image-preview)...");
+  const key = "Instagram Image";
+  console.log(`Starting ${key} Generation...`);
 
   const headline = await extractHeadline(caption, "Instagram");
   
-  const prompt = `
+  const timer = setInterval(() => {
+    console.log(`...still waiting for Gemini Image API on ${key} (30s elapsed)...`);
+  }, 30000);
+
+  try {
+    const prompt = `
 Create a vertical Instagram graphic (1080x1350).
 Style: Minimalist, premium typography, soft strength. 
 Colors: Deep charcoal, off-white, soft gold.
@@ -14,38 +23,43 @@ NO people, NO cliches.
 Context: Recognized emotional harm.
 
 TEXT TO RENDER: "${headline}"
-  `;
+`;
 
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:predict?key=${process.env.GOOGLE_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        instances: [{ prompt: prompt }],
-        parameters: { 
-          sampleCount: 1, 
-          aspectRatio: "3:4",
-          safetyFilterLevel: "block_none",
-          personGeneration: "allow_adult"
-        } 
-      })
+    const config = {
+      imageConfig: {
+        aspectRatio: "3:4", // Instagram Vertical
+      },
+      responseModalities: ["IMAGE"],
+      safetySettings: [
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "OFF" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "OFF" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "OFF" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "OFF" }
+      ],
+      temperature: 0.7
+    };
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-image-preview",
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      config: config
     });
 
-    if (!response.ok) {
-      const body = await response.text();
-      throw new Error(`Gemini Image request failed (${response.status}): ${body}`);
+    const imagePart = response.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+
+    if (!imagePart) {
+      throw new Error(`No image generated for ${key}.`);
     }
 
-    const data = await response.json();
-    if (!data.predictions) throw new Error(JSON.stringify(data));
-
-    const imageBuffer = Buffer.from(data.predictions[0].bytesBase64Encoded, 'base64');
+    const imageBuffer = Buffer.from(imagePart.inlineData.data, "base64");
     const filename = `ig_img_${Date.now()}.png`;
 
     return await uploadToGCS(imageBuffer, filename);
 
   } catch (error) {
-    console.error("IG Image Gen Failed:", error);
+    console.error(`Failed to generate ${key}:`, error);
     throw error;
+  } finally {
+    clearInterval(timer);
   }
 }
