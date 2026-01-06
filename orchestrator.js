@@ -5,6 +5,7 @@ import { generatePinterestCaption } from "./steps/generatePinterestCaption.js"; 
 import { generateFacebookImage } from "./steps/generateFacebookImage.js";
 import { generateInstagramImage } from "./steps/generateInstagramImage.js";
 import { generatePinterestImage } from "./steps/generatePinterestImage.js";
+import { triggerZapier } from "./steps/triggerZapier.js"; // <--- New Import
 
 export async function runOrchestrator(payload = {}) {
   console.log("SSM Orchestrator started", { timestamp: new Date().toISOString() });
@@ -33,6 +34,8 @@ export async function runOrchestrator(payload = {}) {
       generatePinterestImage(pinData) // Passing the object {title, caption}
     ]);
     console.log("Image Generation Complete.");
+
+    await triggerZapier(zapierPayload);
 
     return {
       status: "completed",
