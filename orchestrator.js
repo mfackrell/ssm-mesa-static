@@ -2,6 +2,9 @@ import { selectTopic } from "./steps/selectTopic.js";
 import { generateInstagramCaption } from "./steps/generateInstagramCaption.js";
 import { generateFacebookCaption } from "./steps/generateFacebookCaption.js"; // Fixed import style
 import { generatePinterestCaption } from "./steps/generatePinterestCaption.js"; // <--- New Import
+import { generateFacebookImage } from "./steps/generateFacebookImage.js";
+import { generateInstagramImage } from "./steps/generateInstagramImage.js";
+import { generatePinterestImage } from "./steps/generatePinterestImage.js";
 
 export async function runOrchestrator(payload = {}) {
   console.log("SSM Orchestrator started", { timestamp: new Date().toISOString() });
@@ -13,7 +16,7 @@ export async function runOrchestrator(payload = {}) {
 
     // --- STEP 2: Content Generation (Concurrent) ---
     // Note: We pass 'topic' only. The functions handle their own OpenAI instances.
-    const [facebookContent, instagramContent, pinterestData] = await Promise.all([
+    const [fbText, igText, pinData] = await Promise.all([
       generateFacebookCaption(topic),
       generateInstagramCaption(topic),
       generatePinterestCaption(topic)
@@ -21,13 +24,32 @@ export async function runOrchestrator(payload = {}) {
 
     console.log("Content generated successfully.");
 
-    return {
+    // --- STEP 3: Image Generation (Concurrent) ---
+    // We pass the generated TEXT to the image generators so they can extract headlines
+    console.log("Starting Image Generation...");
+    const [fbImageUrl, igImageUrl, pinImageUrl] = await Promise.all([
+      generateFacebookImage(fbText),
+      generateInstagramImage(igText),
+      generatePinterestImage(pinData) // Passing the object {title, caption}
+    ]);
+    console.log("Image Generation Complete.");
+
+return {
       status: "completed",
       topic: topic,
-      facebookContent, 
-      instagramContent,
-      pinterestTitle: pinterestData.title,
-      pinterestCaption: pinterestData.caption
+      facebook: {
+        text: fbText,
+        imageUrl: fbImageUrl
+      },
+      instagram: {
+        text: igText,
+        imageUrl: igImageUrl
+      },
+      pinterest: {
+        title: pinData.title,
+        text: pinData.caption,
+        imageUrl: pinImageUrl
+      }
     };
 
   } catch (error) {
