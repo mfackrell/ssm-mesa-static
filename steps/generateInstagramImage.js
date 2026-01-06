@@ -2,7 +2,7 @@ import { uploadToGCS } from "../helpers/uploadToGCS.js";
 import { extractHeadline } from "../helpers/extractHeadline.js";
 
 export async function generateInstagramImage(caption) {
-  console.log("Starting Instagram Image Generation...");
+  console.log("Starting Instagram Image Generation (Model: gemini-3-pro-image-preview)...");
 
   const headline = await extractHeadline(caption, "Instagram");
   
@@ -17,18 +17,23 @@ TEXT TO RENDER: "${headline}"
   `;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${process.env.GOOGLE_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:predict?key=${process.env.GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         instances: [{ prompt: prompt }],
-        parameters: { sampleCount: 1, aspectRatio: "3:4" } // Vertical
+        parameters: { 
+          sampleCount: 1, 
+          aspectRatio: "3:4",
+          safetyFilterLevel: "block_none",
+          personGeneration: "allow_adult"
+        } 
       })
     });
 
     if (!response.ok) {
       const body = await response.text();
-      throw new Error(`Imagen request failed (${response.status}): ${body}`);
+      throw new Error(`Gemini Image request failed (${response.status}): ${body}`);
     }
 
     const data = await response.json();
