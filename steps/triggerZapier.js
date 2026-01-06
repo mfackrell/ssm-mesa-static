@@ -1,15 +1,6 @@
-// steps/triggerZapier.js
-
-export async function triggerZapier({ title, description, videoUrl, tags }) {
+export async function triggerZapier(payload) {
   console.log("Triggering Zapier Webhook...");
-  const webhookUrl = "https://hooks.zapier.com/hooks/catch/19867794/uw8xf2r/";
-
-  const payload = {
-    title,
-    description,
-    videoUrl,
-    tags
-  };
+  const webhookUrl = "https://hooks.zapier.com/hooks/catch/19867794/uwwrses/";
 
   try {
     const response = await fetch(webhookUrl, {
@@ -23,9 +14,11 @@ export async function triggerZapier({ title, description, videoUrl, tags }) {
     }
 
     console.log("✅ Zapier webhook triggered successfully.");
+    return { success: true };
+
   } catch (error) {
-    // We log the error but don't throw it, because we don't want to fail the 
-    // whole orchestration if just the webhook fails.
+    // Log error but don't break the entire orchestrator flow
     console.error("❌ Failed to trigger Zapier:", error.message);
+    return { success: false, error: error.message };
   }
 }
