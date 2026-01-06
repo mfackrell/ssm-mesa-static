@@ -1,9 +1,7 @@
 import { uploadToGCS } from "../helpers/uploadToGCS.js";
-// Note: Pinterest takes {title, caption} object, we usually extract from the Title or Caption
-// For this visual, we'll extract from the Title provided by the previous step.
 
 export async function generatePinterestImage(pinterestData) {
-  console.log("Starting Pinterest Image Generation...");
+  console.log("Starting Pinterest Image Generation (Model: gemini-3-pro-image-preview)...");
   
   // Use the Title generated in the text step as the overlay
   const textOverlay = pinterestData.title || "Subtle Recognition"; 
@@ -18,18 +16,23 @@ TEXT TO RENDER: "${textOverlay}"
   `;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${process.env.GOOGLE_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:predict?key=${process.env.GOOGLE_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         instances: [{ prompt: prompt }],
-        parameters: { sampleCount: 1, aspectRatio: "9:16" } // Tall
+        parameters: { 
+          sampleCount: 1, 
+          aspectRatio: "9:16",
+          safetyFilterLevel: "block_none",
+          personGeneration: "allow_adult"
+        } 
       })
     });
 
     if (!response.ok) {
       const body = await response.text();
-      throw new Error(`Imagen request failed (${response.status}): ${body}`);
+      throw new Error(`Gemini Image request failed (${response.status}): ${body}`);
     }
 
     const data = await response.json();
