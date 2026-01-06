@@ -52,3 +52,4 @@ Output only the post.
     console.error("Error generating Facebook caption:", error);
     throw new Error("Failed to generate Facebook caption.");
   }
+}

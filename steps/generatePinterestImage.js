@@ -27,6 +27,11 @@ TEXT TO RENDER: "${textOverlay}"
       })
     });
 
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Imagen request failed (${response.status}): ${body}`);
+    }
+
     const data = await response.json();
     if (!data.predictions) throw new Error(JSON.stringify(data));
 
