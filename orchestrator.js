@@ -35,6 +35,18 @@ export async function runOrchestrator(payload = {}) {
     ]);
     console.log("Image Generation Complete.");
 
+    // --- STEP 4: Zapier Trigger (New Functionality) ---
+    // DEFINITION ADDED HERE to fix ReferenceError
+    const zapierPayload = {
+      "IG Image URL": igImageUrl,
+      "IG Caption": igText,
+      "FB ImageURL": fbImageUrl,
+      "FB Description": fbText,
+      "Pinterest Image Url": pinImageUrl,
+      "Pinterst Title": pinData.title,
+      "Pinterest Description": pinData.caption
+    };
+    
     await triggerZapier(zapierPayload);
 
     return {
