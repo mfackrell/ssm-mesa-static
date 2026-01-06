@@ -34,7 +34,7 @@ export async function runOrchestrator(payload = {}) {
     ]);
     console.log("Image Generation Complete.");
 
-return {
+    return {
       status: "completed",
       topic: topic,
       facebook: {

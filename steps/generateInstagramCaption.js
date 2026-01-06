@@ -57,3 +57,4 @@ GENERATE NOW.
     console.error("Error generating Instagram caption:", error);
     throw new Error("Failed to generate Instagram caption.");
   }
+}
